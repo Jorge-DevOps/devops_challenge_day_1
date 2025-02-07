@@ -4,9 +4,9 @@ pipeline {
     environment {
         DOCKER_CREDENTIALS_ID = "docker-hub-credentials"
         TF_WORKING_DIR = "infra"
-        REPOSIOTRY = 'https://github.com/Jorge-DevOps/frontend-challenge-base'
+        REPOSIOTRY = 'https://github.com/Jorge-DevOps/devops_challenge_day_1'
         DOCKER_REGISTRY = 'jorgedevops20' 
-        DOCKER_IMAGE = "${DOCKER_REGISTRY}/frontend-challenge-base" 
+        DOCKER_IMAGE = "${DOCKER_REGISTRY}/devops_challenge_day_1" 
     }
 
     stages {
@@ -31,7 +31,7 @@ pipeline {
         stage('Push Docker Image') {
              steps {
                  script {
-                    sh "docker push ${DOCKER_REGISTRY}/frontend-challenge-base:latest"
+                    sh "docker push ${DOCKER_REGISTRY}/devops_challenge_day_1:latest"
                  }
              }
         }
