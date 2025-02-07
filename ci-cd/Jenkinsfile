@@ -31,7 +31,7 @@ pipeline {
         stage('Push Docker Image') {
              steps {
                  script {
-                    sh "docker push ${DOCKER_REGISTRY}/devops_challenge_day_1:latest"
+                    sh 'docker build -t jorgedevops20/devops_challenge_day_1 -f ci-cd/Dockerfile ..'
                  }
              }
         }
