@@ -2,7 +2,6 @@ pipeline {
     agent any
 
     environment {
-        DOCKER_CREDENTIALS_ID = "docker-hub-credentials"
         TF_WORKING_DIR = "infra"
         REPOSIOTRY = 'https://github.com/Jorge-DevOps/devops_challenge_day_1'
         DOCKER_REGISTRY = 'jorgedevops20' 
@@ -23,7 +22,7 @@ pipeline {
             steps {
                 script {
                     echo "Construyendo la imagen Docker..."
-                    sh "docker build -t $DOCKER_IMAGE -f ci-cd/Dockerfile"
+                    sh 'docker build -t jorgedevops20/devops_challenge_day_1 -f ci-cd/Dockerfile ..'
                 }
             }
         }
@@ -31,7 +30,7 @@ pipeline {
         stage('Push Docker Image') {
              steps {
                  script {
-                    sh 'docker build -t jorgedevops20/devops_challenge_day_1 -f ci-cd/Dockerfile ..'
+                    sh "docker push ${DOCKER_REGISTRY}/devops_challenge_day_1:latest"
                  }
              }
         }
