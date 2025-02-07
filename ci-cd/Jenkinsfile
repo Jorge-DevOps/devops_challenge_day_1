@@ -1,0 +1,68 @@
+pipeline {
+    agent any
+
+    environment {
+        IMAGE_NAME = "myapp"
+        IMAGE_TAG = "latest"
+        REGISTRY = "your-docker-registry"
+        CONTAINER_NAME = "myapp_container"
+        INFRA_PATH = "./terraform"
+        DEPLOY_SERVER = "your-server-ip"
+    }
+
+    stages {
+        
+        stage('Build') {
+            steps {
+                script {
+                    sh "docker build -t ${IMAGE_NAME}:${IMAGE_TAG} ."
+                }
+            }
+        }
+
+        stage('Test') {
+            steps {
+                script {
+                    sh "docker run --rm -d --name ${CONTAINER_NAME} -p 8080:8080 ${IMAGE_NAME}:${IMAGE_TAG}"
+                    sleep 5
+                    sh "curl -f http://localhost:8080/hello || (echo 'Test failed' && exit 1)"
+                    sh "docker stop ${CONTAINER_NAME}"
+                }
+            }
+        }
+
+        stage('Terraform Plan & Apply') {
+            steps {
+                script {
+                    dir(INFRA_PATH) {
+                        sh "terraform init"
+                        sh "terraform plan"
+                        sh "terraform apply -auto-approve"
+                    }
+                }
+            }
+        }
+
+        stage('Deploy') {
+            steps {
+                script {
+                    sh "docker tag ${IMAGE_NAME}:${IMAGE_TAG} ${REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG}"
+                    sh "docker push ${REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG}"
+                    sshagent(['your-ssh-credentials']) {
+                        sh """
+                        ssh user@${DEPLOY_SERVER} '
+                            docker pull ${REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG} &&
+                            docker stop ${CONTAINER_NAME} || true &&
+                            docker rm ${CONTAINER_NAME} || true &&
+                            docker run -d --name ${CONTAINER_NAME} -p 8080:8080 ${REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG}
+                        '
+                        """
+                    }
+                }
+            }
+        }
+
+        stage('Verification') {
+            steps {
+                script {
+                    sh "curl -
