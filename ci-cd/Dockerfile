@@ -1,17 +1,22 @@
+# Usa una imagen de Python ligera
 FROM python:3.9.10-alpine3.14
 
+# Instala dependencias del sistema en una sola capa para reducir tamaño
+RUN apk --no-cache add git && \
+    pip install --upgrade pip
 
-RUN apk update && \
-    apk upgrade && \
-    apk add --no-cache git
-
-
+# Establece el directorio de trabajo
 WORKDIR /usr/src/app
 
-COPY . /usr/src/app
+# Copia solo los archivos necesarios (evita copiar `../`)
+COPY app /usr/src/app
 
+# Instala dependencias de Python
+RUN pip --no-cache-dir install -r requirements.txt
 
-RUN pip install --upgrade pip
-RUN pip --no-cache-dir install -r app/requirements.txt
+# Establece un usuario no root para mayor seguridad
+RUN addgroup -S appgroup && adduser -S appuser -G appgroup
+USER appuser
 
-CMD ["python", "app/main.py"]
+# Comando de inicio
+CMD ["python", "main.py"]
