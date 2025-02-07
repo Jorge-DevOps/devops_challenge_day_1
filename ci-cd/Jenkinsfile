@@ -22,7 +22,7 @@ pipeline {
             steps {
                 script {
                     echo "Construyendo la imagen Docker..."
-                    sh 'docker build -t jorgedevops20/devops_challenge_day_1 -f ci-cd/Dockerfile ..'
+                    sh 'docker build -t jorgedevops20/devops_challenge_day_1 -f ci-cd/Dockerfile .'
                 }
             }
         }
