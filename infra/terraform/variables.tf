@@ -2,10 +2,12 @@ variable "aws_access_key" {
     description = "The IAM public access key"
 }
 
+variable "ami_id" { default = "ami-0b0ea68c435eb488d" }  # Amazon Linux 2 AMI
+variable "instance_type" { default = "t2.micro" }
+
 variable "aws_secret_key" {
     description = "IAM secret access key"
 }
-
 variable "aws_region" {
   description = "AWS region"
   default     = "us-east-1"

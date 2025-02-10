@@ -1,0 +1,29 @@
+[
+    {
+        "id": "ecs-svc/2277522337035312341",
+        "status": "PRIMARY",
+        "taskDefinition": "arn:aws:ecs:us-east-1:577638391538:task-definition/python-task:3",
+        "desiredCount": 1,
+        "pendingCount": 0,
+        "runningCount": 1,
+        "failedTasks": 0,
+        "createdAt": "2025-02-07T15:02:38.048000-05:00",
+        "updatedAt": "2025-02-07T15:05:01.096000-05:00",
+        "launchType": "FARGATE",
+        "platformVersion": "1.4.0",
+        "platformFamily": "Linux",
+        "networkConfiguration": {
+            "awsvpcConfiguration": {
+                "subnets": [
+                    "subnet-0e68758b00b904f7d"
+                ],
+                "securityGroups": [
+                    "sg-0494d8b674a9bb50f"
+                ],
+                "assignPublicIp": "ENABLED"
+            }
+        },
+        "rolloutState": "COMPLETED",
+        "rolloutStateReason": "ECS deployment ecs-svc/2277522337035312341 completed."
+    }
+]

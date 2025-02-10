@@ -10,47 +10,47 @@ resource "aws_iam_role" "ecs_execution_role" {
     Statement = [
       {
         Effect = "Allow"
-        Principal = {
-          Service = "ecs-tasks.amazonaws.com"
-        }
+        Principal = { Service = "ecs-tasks.amazonaws.com" }
         Action = "sts:AssumeRole"
       }
     ]
   })
 }
 
-resource "aws_ecs_task_definition" "python_task" {
-  family                   = var.task_family
-  requires_compatibilities = ["FARGATE"]
-  network_mode             = "awsvpc"
-  memory                   = var.task_memory
-  cpu                      = var.task_cpu
-  execution_role_arn       = aws_iam_role.ecs_execution_role.arn
 
-  container_definitions = jsonencode([
+resource "aws_iam_role" "ec2_instance_connect_role" {
+  name = "EC2InstanceConnectRole"
+  
+  assume_role_policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
     {
-      name  = "python-app"
-      image = var.container_image
-      portMappings = [
-        {
-          containerPort = 8080
-          hostPort      = 8080
-        }
-      ]
+      "Effect": "Allow",
+      "Principal": {
+        "Service": "ec2.amazonaws.com"
+      },
+      "Action": "sts:AssumeRole"
     }
-  ])
+  ]
+}
+EOF
 }
 
-resource "aws_ecs_service" "python_service" {
-  name            = var.ecs_service_name
-  cluster         = aws_ecs_cluster.python_cluster.id
-  task_definition = aws_ecs_task_definition.python_task.arn
-  launch_type     = "FARGATE"
-  desired_count   = 1
+resource "aws_iam_role_policy_attachment" "ec2_instance_connect_policy" {
+  role       = aws_iam_role.ec2_instance_connect_role.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEC2InstanceConnect"
+}
+resource "aws_instance" "python_app" {
+  ami                    = "ami-0b0ea68c435eb488d" # Cambia por una AMI compatible con Instance Connect
+  instance_type          = "t2.micro"
+  subnet_id              = aws_subnet.public_subnet.id
+  vpc_security_group_ids = [aws_security_group.ec2_sg.id]
+  iam_instance_profile   = aws_iam_role.ec2_instance_connect_role.name
+  key_name               = "my-key" # Cambia por tu clave SSH
 
-  network_configuration {
-    subnets         = [aws_subnet.public_subnet.id]
-    security_groups = [aws_security_group.ecs_sg.id]
-    assign_public_ip = true
-  }
+  user_data = <<-EOF
+    #!/bin/bash
+    yum install -y ec2-instance-connect
+  EOF
 }
